@@ -26,12 +26,11 @@ func main() {
 
 func handler(conn net.Conn) {
 	scan := bufio.NewScanner(conn)
-	i := 0
 	for scan.Scan() {
 		ln := scan.Text()
 		method := strings.Fields(ln)
 
-		if i == 0 && method[0] == "GET" {
+		if method[0] == "GET" {
 			message := "<h1>Hi from server</h1>"
 			fmt.Fprint(conn, "HTTP/1.1 200 OK\r\n")
 			fmt.Fprintf(conn, "Content-Length: %d\r\n", len(message))
@@ -39,8 +38,8 @@ func handler(conn net.Conn) {
 			fmt.Fprint(conn, "\r\n")
 			fmt.Fprintln(conn, message)
 			fmt.Println(method[0])
+			break
 		}
-		i++
 	}
 
 	defer conn.Close()
