@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -36,52 +35,39 @@ func handler(conn net.Conn) {
 		if i == 0 {
 			method = strings.Fields(ln)[0]
 		}
+		fmt.Println(ln, i)
+		if ln == "" && i > 8 && scan.Scan() {
+			// if scan.Scan() {
+			// fmt.Println("here", scan.Scan())
+			body = scan.Text()
+			fmt.Println("body", body)
 
-		if i >= 10 {
-			body += ln
-		}
-
-		if ln != "" && ln[len(ln)-1] != []byte(",")[0] && i > 10 {
+			// if method == "POST" {
+			// 	fmt.Println("masuk method")
+			// 	sendResponse(conn, "200 OK", body, "text/plain")
+			// }
 			break
+			// }
 		}
+
 		i++
 	}
+	fmt.Println(method)
+	fmt.Println(body)
 
-	if method == "POST" {
-		body += "}"
-		postHandler(conn, body)
-	}
+	// if method == "POST" {
+	// 	sendResponse(conn, "200 OK", body, "text/plain")
+	// }
+
 	defer conn.Close()
 }
 
-type Person struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Age       int    `json:"age"`
-}
+// func sendResponse(conn net.Conn, httpStatus, message, contentType string) {
+// 	str := base64.StdEncoding.EncodeToString([]byte(message))
 
-func postHandler(conn net.Conn, body string) {
-	req := Person{}
-
-	err := json.Unmarshal([]byte(body), &req)
-	if err != nil {
-		sendResponse(conn, "500 Internal Server Error", "internal server error", "text/plain")
-		return
-	}
-
-	res, err := json.Marshal(req)
-	if err != nil {
-		sendResponse(conn, "500 Internal Server Error", "internal server error", "text/plain")
-		return
-	}
-
-	sendResponse(conn, "200 OK", string(res), "application/json")
-}
-
-func sendResponse(conn net.Conn, httpStatus, message, contentType string) {
-	fmt.Fprintf(conn, "HTTP/1.1 %v\r\n", httpStatus)
-	fmt.Fprintf(conn, "Content-Length: %d\r\n", len(message))
-	fmt.Fprintf(conn, "Content-Type: %v\r\n", contentType)
-	fmt.Fprint(conn, "\r\n")
-	fmt.Fprintln(conn, message)
-}
+// 	fmt.Fprintf(conn, "HTTP/1.1 %v\r\n", httpStatus)
+// 	fmt.Fprintf(conn, "Content-Length: %d\r\n", len(str))
+// 	fmt.Fprintf(conn, "Content-Type: %v\r\n", contentType)
+// 	fmt.Fprint(conn, "\r\n")
+// 	fmt.Fprintln(conn, str)
+// }
